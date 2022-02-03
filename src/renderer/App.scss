@@ -1,0 +1,82 @@
+$fa-font-path: "~font-awesome/fonts";
+@import "~font-awesome/scss/font-awesome.scss";
+@import "~bootstrap/scss/bootstrap";
+
+body {
+    position: relative;
+    color: white;
+    height: 100vh;
+    background: linear-gradient(
+                    200.96deg,
+                    #fedc2a -29.09%,
+                    #dd5789 51.77%,
+                    #7a2c9e 129.35%
+    );
+    overflow-y: hidden;
+    padding: 15px;
+}
+
+.custom-button {
+    background-color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    appearance: none;
+    font-size: 1.3rem;
+    box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+    transition: all ease-in 0.1s;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+.custom-button:hover {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    height: fit-content;
+    width: fit-content;
+    margin: 10px;
+}
+
+a:hover {
+    opacity: 1;
+    text-decoration: none;
+}
+
+header {
+    padding-top: 15px;
+}
+
+.row {
+    margin-top: 15px;
+}
+
+.path-text {
+    color: black;
+    opacity: 100%;
+    cursor: text;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.path-text:hover {
+    transform: none;
+}
+
+.choose-dir-button {
+    max-width: 160px;
+}
+
+.column-header-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
-const VALID_CHANNEL_NAMES = ['log', 'loadPL']
+const VALID_CHANNEL_NAMES = ['log', 'loadPL', 'is-python']
 
 contextBridge.exposeInMainWorld(
     'electron',
@@ -21,14 +21,9 @@ contextBridge.exposeInMainWorld(
             return ipcRenderer.invoke(channel, args)
         },
 
-        log: (message) => {
-            ipcRenderer.send('log', message)
-        },
-        chooseDir: () => {
-            return ipcRenderer.invoke('choose-dir')
-        },
-        getPrefs: (...args) => {
-            return ipcRenderer.invoke('get-prefs', args)
-        }
+        log: (message) => ipcRenderer.send('log', message),
+        chooseDir: () => ipcRenderer.invoke('choose-dir'),
+        getPrefs: (...args) => ipcRenderer.invoke('get-prefs', args),
+        isPython: () => ipcRenderer.invoke('is-python')
     }
 )

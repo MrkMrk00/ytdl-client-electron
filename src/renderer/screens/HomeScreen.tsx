@@ -9,6 +9,7 @@ type Playlist = {
 }
 
 const HomeScreen = () => {
+    const [firstRender, setFirstRender] = useState(true)
     const [dir, setDir] = useState('')
     const [playlists, setPlaylists] = useState<Playlist[]>([])
 
@@ -31,11 +32,15 @@ const HomeScreen = () => {
         updateDir()
     }
 
-    useEffect(() => {
-        console.log(playlists)
-    })
+    const isPython = async () => {
+        console.log(await window.electron.invoke('is-python'))
+    }
 
-    updateDir()
+    if (firstRender) {
+        loadPlaylists()
+        updateDir()
+        setFirstRender(() => false)
+    }
 
     return (
         <div className={'container'}>
@@ -59,6 +64,10 @@ const HomeScreen = () => {
                     />
 
                 </div>
+                <Button
+                    text={'python'}
+                    onClick={isPython}
+                />
 
                 <div className={'col-2'} />
 

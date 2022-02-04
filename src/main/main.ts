@@ -5,7 +5,8 @@ import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import Store, { PARAMS } from './Store'
-import {loadPlaylists} from './playlistLoader'
+import { loadPlaylists } from './playlistLoader'
+import YTDL, {isPythonInstalled} from './YTDL'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -13,6 +14,7 @@ if (process.env.NODE_ENV === 'production') {
     const sourceMapSupport = require('source-map-support')
     sourceMapSupport.install()
 }
+
 const isDevelopment =
     process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
 
@@ -31,16 +33,18 @@ const installExtensions = async () => {
         .catch(console.log)
 }
 
-const createWindow = async () => {
-    if (isDevelopment) await installExtensions()
-
-    const RESOURCES_PATH = app.isPackaged
+export const getResourcesPath = () => {
+    return app.isPackaged
         ? path.join(process.resourcesPath, 'assets')
         : path.join(__dirname, '../../assets')
+}
 
-    const getAssetPath = (...paths: string[]): string => {
-        return path.join(RESOURCES_PATH, ...paths)
-    }
+export const getAssetPath = (...paths: string[]): string => {
+    return path.join(getResourcesPath(), ...paths)
+}
+
+const createWindow = async () => {
+    if (isDevelopment) await installExtensions()
 
     mainWindow = new BrowserWindow({
         show: false,
@@ -77,6 +81,10 @@ const createWindow = async () => {
     })
 }
 
+/**
+ * Register IPC handlers and listeners
+ */
+
 ipcMain.on('log', async (event, args) => {
     console.log(args)
 })
@@ -111,6 +119,8 @@ ipcMain.handle('loadPL', async (event, args: string[]) => {
     return null
 })
 
+ipcMain.handle('is-python', () => isPythonInstalled())
+
 /**
  * Add event listeners...
  */
@@ -126,9 +136,9 @@ app.on('window-all-closed', () => {
 app.whenReady()
     .then(() => {
         createWindow()
+
         app.on('activate', () => {
             if (mainWindow === null) createWindow()
         })
     })
     .catch(console.log)
-

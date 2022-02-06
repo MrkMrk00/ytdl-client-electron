@@ -21,7 +21,9 @@ const HomeScreen = () => {
     }
 
     const updateDir = async () => {
-        const dirInConfig = await window.electron.getPrefs('musicDir') as string
+        const dirInConfig = (await window.electron.getPrefs(
+            'musicDir'
+        )) as string
         setDir(() => dirInConfig)
     }
 
@@ -32,14 +34,10 @@ const HomeScreen = () => {
         updateDir()
     }
 
-    const isPython = async () => {
-        console.log(await window.electron.invoke('is-python'))
-    }
-
     if (firstRender) {
         loadPlaylists()
-        updateDir()
-        setFirstRender(() => false)
+            .then(() => updateDir())
+            .then(() => setFirstRender(() => false))
     }
 
     return (
@@ -50,34 +48,40 @@ const HomeScreen = () => {
 
             <div className={'row'}>
                 <div className={'col-5'}>
-
                     <div className={'column-header-button'}>
                         <h2> Playlisty: </h2>
-                        <Button
-                            text={''}
-                            className={'fa fa-refresh'}
-                            onClick={loadPlaylists}
-                        />
+                        <div>
+                            <Button
+                                text={''}
+                                className={'fa fa-plus'}
+                                onClick={() => console.log('plus')}
+                            />
+                            <span
+                                style={{
+                                    width: '15px',
+                                    display: 'inline-block',
+                                }}
+                            />
+                            <Button
+                                text={''}
+                                className={'fa fa-refresh'}
+                                onClick={loadPlaylists}
+                            />
+                        </div>
                     </div>
 
-                    <PrettyTable playlists={playlists}
-                    />
-
+                    <PrettyTable playlists={playlists} />
                 </div>
-                <Button
-                    text={'python'}
-                    onClick={isPython}
-                />
 
                 <div className={'col-2'} />
 
                 <div className={'col-5'}>
                     <h2> Úložiště hudby: </h2>
                     <div className={'custom-button path-text'}>
-                        <p>{ dir }</p>
+                        <p>{dir}</p>
                     </div>
                     <div className={'row'}>
-                        <div className={'col'}/>
+                        <div className={'col'} />
                         <Button
                             text={'Změň složku'}
                             onClick={chooseDir}

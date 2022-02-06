@@ -5,8 +5,10 @@ import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import Store, { PARAMS } from './Store'
-import { loadPlaylists } from './playlistLoader'
-import YTDL, {isPythonInstalled} from './YTDL'
+import { loadRootInfo } from './playlistLoader'
+import _YTDLClass, { isPythonInstalled } from './ytdl'
+
+const getYtdlAsync = _YTDLClass.getAsync
 
 let mainWindow: BrowserWindow | null = null
 
@@ -27,7 +29,7 @@ const installExtensions = async () => {
 
     return installer
         .default(
-            extensions.map((name) => installer[name]),
+            extensions.map(name => installer[name]),
             forceDownload
         )
         .catch(console.log)
@@ -55,7 +57,7 @@ const createWindow = async () => {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
-            sandbox: true
+            sandbox: true,
         },
     })
 
@@ -81,6 +83,10 @@ const createWindow = async () => {
     })
 }
 
+export const showError = (text: string) => {
+    dialog.showErrorBox('YTDL', text)
+}
+
 /**
  * Register IPC handlers and listeners
  */
@@ -92,13 +98,9 @@ ipcMain.on('log', async (event, args) => {
 ipcMain.handle('choose-dir', async () => {
     if (mainWindow === null) return null
 
-    const result =
-        await dialog.showOpenDialog(
-            mainWindow,
-            {
-                properties: ['openDirectory']
-            }
-        )
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory'],
+    })
 
     const paths = result.filePaths
     if (paths.length > 0 && paths[0] !== null && paths[0] != '') {
@@ -115,7 +117,8 @@ ipcMain.handle('get-prefs', async (event, args: string[]) => {
 })
 
 ipcMain.handle('loadPL', async (event, args: string[]) => {
-    if (args.length === 0) await loadPlaylists(`${Store.get(PARAMS.musicDir)}/playlists.json`)
+    if (args.length === 0)
+        await loadRootInfo(`${Store.get(PARAMS.musicDir)}/playlists.json`)
     return null
 })
 
@@ -136,7 +139,6 @@ app.on('window-all-closed', () => {
 app.whenReady()
     .then(() => {
         createWindow()
-
         app.on('activate', () => {
             if (mainWindow === null) createWindow()
         })

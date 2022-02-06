@@ -14,7 +14,7 @@ const Button = (props: ButtonProps) => {
             className={`custom-button ${props.className}`}
             onClick={props.onClick}
         >
-            { props.text }
+            {props.text}
         </button>
     )
 }

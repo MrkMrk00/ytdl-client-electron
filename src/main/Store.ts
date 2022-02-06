@@ -3,7 +3,7 @@ import { PlaylistMinInfo } from './types'
 
 export const PARAMS = {
     musicDir: 'musicDir',
-    playlists: 'playlists'
+    playlists: 'playlists',
 }
 
 type StoreType = {
@@ -15,7 +15,7 @@ const store = new Store<StoreType>({
     name: 'prefs',
     defaults: {
         musicDir: '',
-    }
+    },
 })
 
 export default store

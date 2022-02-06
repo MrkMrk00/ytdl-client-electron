@@ -1,5 +1,5 @@
-$separator-color: #AAAAAA;
-@import "../App";
+$separator-color: #aaaaaa;
+@import '../App';
 
 .playlist-table {
     background-color: white;
@@ -7,11 +7,25 @@ $separator-color: #AAAAAA;
     border-radius: 15px;
     padding: 5px 5px 15px;
     margin-top: 15px;
-    box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
-    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
-}
+    box-shadow: 0 8px 28px -6px rgba(24, 39, 75, 0.12),
+        0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+    min-height: 500px;
 
-.playlist-row {
-    border: black solid 1px;
-    border-radius: 15px;
+    .row {
+        justify-content: center;
+        text-align: center;
+        border-radius: 15px;
+        padding: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        box-shadow: 0 8px 28px -6px rgba(24, 39, 75, 0.12),
+            0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+        transition: all ease-in 0.1s;
+        cursor: pointer;
+    }
+
+    .row:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 28px -6px lightblue, 0px 18px 88px -4px lightblue;
+    }
 }

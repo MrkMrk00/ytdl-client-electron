@@ -11,7 +11,10 @@
         "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
         "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/main/main.ts",
         "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-        "test": "jest"
+        "test": "jest",
+        "lint:fix": "npx eslint . --fix",
+        "pret": "npx prettier --config .prettierrc.json --ignore-path .prettierignore --write .",
+        "lint": "npm run pret && npm run lint:fix"
     },
     "build": {
         "productName": "YTDLClientElectron",
@@ -147,6 +150,7 @@
         "lint-staged": "^12.1.4",
         "mini-css-extract-plugin": "^2.4.5",
         "opencollective-postinstall": "^2.0.3",
+        "prettier": "2.5.1",
         "react-refresh": "^0.11.0",
         "react-refresh-typescript": "^2.0.3",
         "react-test-renderer": "^17.0.2",

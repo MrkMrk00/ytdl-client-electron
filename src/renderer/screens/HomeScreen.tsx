@@ -13,31 +13,35 @@ const HomeScreen = () => {
     const [dir, setDir] = useState('')
     const [playlists, setPlaylists] = useState<Playlist[]>([])
 
+    const handleDirChange = async () => {
+        try {
+            const path = await window.electron.chooseDir()
+            setDir(() => path)
+        } catch (e: any) {
+            window.electron.send('error', e.message)
+        }
+    }
+
     const loadPlaylists = async () => {
-        await window.electron.invoke('loadPL')
-        const res = await window.electron.getPrefs('playlists')
-        const plArray = res ? res.playlists : []
-        setPlaylists(() => plArray)
+        const loaded = await window.electron.invoke('loadPL')
+            .catch(reason => {
+                window.electron.send('error', reason.toString())
+            })
+        const playlists = await window.electron.getPrefs('playlists')
+        setPlaylists(() => playlists ? playlists : [])
     }
 
-    const updateDir = async () => {
-        const dirInConfig = (await window.electron.getPrefs(
-            'musicDir'
-        )) as string
-        setDir(() => dirInConfig)
-    }
-
-    const chooseDir = async () => {
-        const resDir = await window.electron.chooseDir()
-        if (resDir === null || resDir === '') return
-
-        updateDir()
-    }
 
     if (firstRender) {
-        loadPlaylists()
-            .then(() => updateDir())
-            .then(() => setFirstRender(() => false))
+        const loadDefaults = async () => {
+            const pathToRootDir = await window.electron.getPrefs('musicDir')
+            setDir(() => pathToRootDir)
+            const playlists = await window.electron.getPrefs('playlists')
+            setPlaylists(() => playlists ?? [])
+        }
+
+        loadDefaults()
+        setFirstRender(() => false)
     }
 
     return (
@@ -84,8 +88,8 @@ const HomeScreen = () => {
                         <div className={'col'} />
                         <Button
                             text={'Změň složku'}
-                            onClick={chooseDir}
                             className={'choose-dir-button'}
+                            onClick={() => {handleDirChange().then(loadPlaylists)}}
                         />
                     </div>
                 </div>

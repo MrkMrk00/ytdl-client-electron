@@ -7,11 +7,9 @@ declare global {
         electron: {
             send: (channel: string, ...args: string[]) => void
             invoke: (channel: string, ...args: string[]) => Promise<any>
-
-            log: (message: string) => void
-            chooseDir: () => Promise<string | null>
-            getPrefs: (...args: string[]) => Promise<any>
-            isPython: () => Promise<boolean>
+            on: (channel: string, listener: (event: any, ...args: string[]) => void) => void
+            chooseDir: () => Promise<string>
+            getPrefs: (name: string) => Promise<any>
         }
     }
 }

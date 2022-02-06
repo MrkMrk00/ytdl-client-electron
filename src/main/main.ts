@@ -5,8 +5,9 @@ import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import Store, { PARAMS } from './Store'
-import { loadRootInfo } from './playlistLoader'
-import _YTDLClass, { isPythonInstalled } from './ytdl'
+import { loadRootInfoIntoStore, RootInfoError } from './playlistLoader'
+import _YTDLClass from './ytdl'
+import chalk from 'chalk'
 
 const getYtdlAsync = _YTDLClass.getAsync
 
@@ -96,7 +97,7 @@ ipcMain.on('log', async (event, args) => {
 })
 
 ipcMain.handle('choose-dir', async () => {
-    if (mainWindow === null) return null
+    if (mainWindow === null) return Promise.reject('Main window is null')
 
     const result = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory'],
@@ -108,21 +109,26 @@ ipcMain.handle('choose-dir', async () => {
         return paths[0]
     }
 
-    return null
+    return Promise.reject('Unable to get path from selected directory')
 })
 
-ipcMain.handle('get-prefs', async (event, args: string[]) => {
-    if (!args) return Store.store
-    return Store.get(args[0])
+ipcMain.handle('get-prefs', async (event, arg: string) => {
+    if (!arg) return Store.store
+    return Store.get(arg)
 })
 
-ipcMain.handle('loadPL', async (event, args: string[]) => {
-    if (args.length === 0)
-        await loadRootInfo(`${Store.get(PARAMS.musicDir)}/playlists.json`)
-    return null
+ipcMain.handle('loadPL', async () => {
+    console.log(chalk.red('loadPL handler'))
+    try {
+        await loadRootInfoIntoStore(`${Store.get(PARAMS.musicDir)}`)
+        return Promise.resolve()
+    } catch (e: unknown) {
+        return Promise.reject(JSON.stringify(e))
+    }
 })
-
-ipcMain.handle('is-python', () => isPythonInstalled())
+ipcMain.on('error', (event, args: string[]) => {
+    dialog.showErrorBox('YTDL', (args.length > 0 ? args[0] : 'An error occured'))
+})
 
 /**
  * Add event listeners...

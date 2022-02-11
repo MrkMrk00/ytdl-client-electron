@@ -123,6 +123,7 @@ ipcMain.handle('choose-dir', async (event, args: string[]) => {
         return Promise.reject('Unable to get path from selected directory')
 
     if (args.includes('save-root')) Store.set('rootDir', paths[0])
+    log.debug(paths[0])
     return paths[0]
 })
 
@@ -131,36 +132,56 @@ ipcMain.handle('get-pref', async (event, arg: string) => {
     return Store.get(arg)
 })
 
+/**
+ * Loads playlists from root/playlists.json into Electron Store
+ */
 ipcMain.handle('loadPL', async () => {
     try {
         await loadRootInfoIntoStore(await Store.get('rootDir'))
         return Promise.resolve()
     } catch (e: unknown) {
-        return Promise.reject(JSON.stringify(e))
+        return Promise.reject(e)
     }
 })
 
+/**
+ * Displays dialog with error message
+ */
 ipcMain.on('error', (event, args: string[]) => {
     dialog.showErrorBox('YTDL', args.length > 0 ? args[0] : 'An error occured')
 })
 
+/**
+ * Runs youtube-dl command, that downloads json contents of playlist into playlist.json in playlist dir
+ */
+ipcMain.handle('download-playlist-info', async (event, playlist: Playlist) => {
+    return await downloadPlaylistsContentsJSON(playlist.dir, playlist.remoteUrl)
+})
+
+/**
+ * Loads and returns json playlist contents from playlist.json file in playlist dir
+ */
 ipcMain.handle('get-playlist-info', async (event, ...args: string[]) => {
     if (!args || !args[0]) return Promise.reject(new Error('No path passed'))
     return await loadPlaylistInfo(args[0])
 })
 
+/**
+ * Adds playlist into root/playlists.json and into Electron Store
+ */
 ipcMain.handle('add-playlist', async (event, playlist: Playlist) => {
     if (!playlist) return Promise.reject()
-    return await addNewPlaylist(playlist)
+    await addNewPlaylist(playlist)
+    return await loadRootInfoIntoStore(await Store.get('rootDir'))
 })
 
+/**
+ * Removes playlist from root/playlists.json and from Electron Store
+ */
 ipcMain.handle('remove-playlist', async (event, playlist: Playlist) => {
-    log.debug(JSON.stringify(playlist, null, 2))
-    return await removePlaylist(playlist)
-})
-
-ipcMain.handle('download-playlist-info', async (event, playlist: Playlist) => {
-    return await downloadPlaylistsContentsJSON(playlist.dir, playlist.remoteUrl)
+    if (!playlist) return Promise.reject()
+    await removePlaylist(playlist)
+    return await loadRootInfoIntoStore(await Store.get('rootDir'))
 })
 
 /**

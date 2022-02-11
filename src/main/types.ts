@@ -5,6 +5,5 @@ export type Playlist = {
 }
 
 export type RootInfo = {
-    rootDir: string
     playlists: Playlist[]
 }

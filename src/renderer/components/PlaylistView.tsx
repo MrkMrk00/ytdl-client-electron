@@ -1,14 +1,15 @@
-import React, { ReactElement, useState } from 'react'
+import React from 'react'
 import './components.scss'
 import PlaylistSongView from './PlaylistSongView'
 import Button from './Button'
+import { RootState } from '../redux/store'
+import { connect } from 'react-redux'
 
-const PlaylistView = (props: { playlist: [Playlist, PlaylistFull] | null, onDelete: (playlist: Playlist) => void }) => {
-
+const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
     return (
         <div className={'row'}>
             <div className={'col-8'}>
-                <PlaylistSongView playlist={ props.playlist ? props.playlist[1] : null } />
+                <PlaylistSongView playlist={ props.playlist ? props.playlist : null } />
             </div>
             <div className={'col-4'}>
                 { props.playlist ?
@@ -16,7 +17,7 @@ const PlaylistView = (props: { playlist: [Playlist, PlaylistFull] | null, onDele
                         <Button
                             text={''}
                             className={'fa-solid fa-trash'}
-                            onClick={() => props.onDelete(props.playlist![0])}
+                            onClick={() => {}}
                         />
                     </div>
                     : null
@@ -26,4 +27,10 @@ const PlaylistView = (props: { playlist: [Playlist, PlaylistFull] | null, onDele
     )
 }
 
-export default PlaylistView
+const mapStateToProps = (state: RootState) => {
+    return {
+        playlist: state.playlists.selectedPlaylist
+    }
+}
+
+export default connect(mapStateToProps)(PlaylistView)

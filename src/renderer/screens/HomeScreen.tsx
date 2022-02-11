@@ -4,19 +4,25 @@ import PlaylistsContainer from '../components/PlaylistsContainer'
 import Button from '../components/Button'
 import { useNavigate } from 'react-router-dom'
 import PlaylistView from '../components/PlaylistView'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
+import { loadPlaylists, selectPlaylist } from '../redux/playlistsSlice'
+import { connect } from 'react-redux'
+import { RootState } from '../redux/store'
 
-const HomeScreen = () => {
+type HomeScreenProps = {
+    playlists: Playlist[]
+    selectedPlaylist: PlaylistFull | null
+}
+
+const HomeScreen = (props: HomeScreenProps) => {
     const navigate = useNavigate()
-    const [playlists, setPlaylists] = useState<Playlist[]>([])
-    const [selectedPlaylist, setSelectedPlaylist] =
-        useState<[Playlist, PlaylistFull] | null>(null)
-
+    const dispatch = useAppDispatch()
     const [dir, setDir] = useState('')
     const [loading, setLoading] = useState(false)
 
     const handleDownloadInfo = async () => {
         setLoading(() => true)
-        for (const pl of playlists) {
+        for (const pl of props.playlists) {
             try {
                 await window.electron.invoke('download-playlist-info', pl)
             } catch (e: any) {
@@ -30,10 +36,10 @@ const HomeScreen = () => {
         try {
             await window.electron.invoke('loadPL')
             const playlists = await window.electron.getPref('playlists')
-            setPlaylists(() => playlists)
+            dispatch({ type: loadPlaylists.type, payload: playlists})
         } catch (e: any) {
             window.electron.send('error', e.message)
-            setPlaylists(() => [])
+            dispatch({ type: loadPlaylists.type, payload: []})
         }
     }
 
@@ -43,10 +49,10 @@ const HomeScreen = () => {
                 'get-playlist-info',
                 playlistToSelect.dir
             )
-            setSelectedPlaylist(() => [playlistToSelect, playlist])
+            dispatch({ type: selectPlaylist.type, payload: playlist })
         } catch (e: any) {
             window.electron.send('error', e.message)
-            setSelectedPlaylist(() => null)
+            dispatch({type: selectPlaylist.type, payload: null })
         }
     }
 
@@ -56,7 +62,7 @@ const HomeScreen = () => {
             setDir(prev => {
                 if (prev !== newDir) {
                     handleLoadPlaylists()
-                    setSelectedPlaylist(() => null)
+                    dispatch({type: selectPlaylist.type, payload: null })
                 }
                 return newDir
             })
@@ -73,7 +79,7 @@ const HomeScreen = () => {
     useEffect(() => {
         (async () => {
             await handleLoadPlaylists()
-            if (playlists[0]) await handleSelectPlaylist(playlists[0])
+            if (props.playlists[0]) await handleSelectPlaylist(props.playlists[0])
             const newDir = await window.electron.getPref('rootDir')
             setDir(() => newDir)
         })()
@@ -112,7 +118,7 @@ const HomeScreen = () => {
                         />
                     </div>
                     <PlaylistsContainer
-                        playlists={playlists}
+                        playlists={props.playlists}
                         onClick={handleSelectPlaylist}
                     />
                 </div>
@@ -127,14 +133,18 @@ const HomeScreen = () => {
                             <div className={'dir top-row-block'}> {dir} </div>
                         </div>
                     </div>
-                    <PlaylistView
-                        playlist={selectedPlaylist}
-                        onDelete={handleDelete}
-                    />
+                    <PlaylistView />
                 </div>
             </div>
         </div>
     )
 }
 
-export default HomeScreen
+const mapStateToProps = (state: RootState) => {
+    return {
+        playlists: state.playlists.playlists,
+        selectPlaylist: state.playlists.selectedPlaylist
+    }
+}
+
+export default connect(mapStateToProps)(HomeScreen)

@@ -50,8 +50,7 @@ class RootInfoWriter {
 }
 
 export const loadRootInfoIntoStore = async (rootPath: string) => {
-    const filePath = rootPath + '/playlists.json'
-    log.debug(`filePath: ${filePath}`)
+    const filePath = path.join(rootPath, 'playlists.json')
 
     try {
         await access(filePath)
@@ -61,11 +60,8 @@ export const loadRootInfoIntoStore = async (rootPath: string) => {
 
     try {
         const res = await readFile(filePath)
-        log.debug(`raw file: ${res.toString()}`)
         const json = JSON.parse(res.toString('utf-8'))
-
         Store.set('playlists', json.playlists)
-        Store.set('rootDir', json.rootDir)
     } catch (e: any) {
         Store.set('playlists', [])
         return Promise.reject(e.message)
@@ -106,13 +102,6 @@ export const loadPlaylistInfo = async (
         log.debug(`error: ${e}`)
         return Promise.reject(e)
     }
-}
-
-export const getTest = async () => {
-    const str = (
-        await readFile('/home/marek/Hudba/zlejlist/playlist.json')
-    ).toString()
-    return JSON.parse(str)
 }
 
 /**

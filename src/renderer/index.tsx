@@ -1,6 +1,8 @@
 import React from 'react'
 import { render } from 'react-dom'
 import App from './App'
+import Store from './redux/store'
+import { Provider } from 'react-redux'
 
 declare global {
     interface Window {
@@ -36,4 +38,9 @@ declare global {
     }
 }
 
-render(<App />, document.getElementById('root'))
+render(
+    <Provider store={Store}>
+        <App />
+    </Provider>,
+    document.getElementById('root')
+)

@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
-const VALID_SEND = ['log', 'loadPL', 'error']
+const VALID_SEND = ['loadPL', 'error', 'get-playlist-info', 'add-playlist', 'download-playlist-info', 'remove-playlist']
 const VALID_LISTEN = []
 
 contextBridge.exposeInMainWorld('electron', {
@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld('electron', {
 
         console.log(`electron.invoke ${channel} ${args}`)
         if (!isValidChannel) return
-        return ipcRenderer.invoke(channel, args)
+        return ipcRenderer.invoke(channel, ...args)
     },
     on: (channel, listener) => {
         const isValidChannel =
@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.on(channel, listener)
     },
 
-    chooseDir: () => ipcRenderer.invoke('choose-dir'),
-    getPrefs: (arg) => ipcRenderer.invoke('get-prefs', arg),
+    downloadPlaylistJSON: playlist => ipcRenderer.invoke('download-playlist-info', playlist),
+    chooseDir: (...args) => ipcRenderer.invoke('choose-dir', args),
+    getPref: arg => ipcRenderer.invoke('get-pref', arg),
 })

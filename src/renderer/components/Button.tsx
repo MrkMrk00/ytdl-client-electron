@@ -1,16 +1,17 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import './components.scss'
 
 type ButtonProps = {
-    text: string
+    text: string | ReactElement
     onClick?: () => void
     className?: string
+    type?: 'button' | 'submit' | 'reset'
 }
 
 const Button = (props: ButtonProps) => {
     return (
         <button
-            type={'button'}
+            type={props.type ? props.type : 'button'}
             className={`custom-button ${props.className}`}
             onClick={props.onClick}
         >

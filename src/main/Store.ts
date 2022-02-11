@@ -1,20 +1,16 @@
 import Store from 'electron-store'
-import { PlaylistMinInfo } from './types'
-
-export const PARAMS = {
-    musicDir: 'musicDir',
-    playlists: 'playlists',
-}
+import { Playlist } from './types'
 
 type StoreType = {
-    musicDir: string
-    playlists?: PlaylistMinInfo
+    rootDir: string
+    playlists: Playlist[]
 }
 
 const store = new Store<StoreType>({
     name: 'prefs',
     defaults: {
-        musicDir: '',
+        rootDir: '',
+        playlists: []
     },
 })
 

@@ -1,19 +1,24 @@
-$fa-font-path: '~font-awesome/fonts';
-@import '~font-awesome/scss/font-awesome.scss';
+$fa-font-path: '~@fortawesome/fontawesome-free/webfonts';
+@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
+@import '~@fortawesome/fontawesome-free/scss/solid.scss';
+@import '~@fortawesome/fontawesome-free/scss/brands.scss';
+@import '~@fortawesome/fontawesome-free/scss/regular.scss';
 @import '~bootstrap/scss/bootstrap';
+
+.material-block {
+    background-color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px -6px rgba(24, 39, 75, 0.12),
+        0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+    vertical-align: center;
+    text-align: center;
+}
 
 body {
     position: relative;
-    color: white;
     height: 100vh;
-    background: linear-gradient(
-        200.96deg,
-        #fedc2a -29.09%,
-        #dd5789 51.77%,
-        #7a2c9e 129.35%
-    );
     overflow-y: hidden;
-    padding: 15px;
 }
 
 .custom-button {
@@ -23,7 +28,7 @@ body {
     border: none;
     appearance: none;
     font-size: 1.3rem;
-    box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    box-shadow: 0 8px 28px -6px rgba(24, 39, 75, 0.12),
         0px 18px 88px -4px rgba(24, 39, 75, 0.14);
     transition: all ease-in 0.1s;
     cursor: pointer;
@@ -79,4 +84,106 @@ header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.button-row {
+    display: flex;
+    flex-direction: row;
+    margin: 20px;
+
+    Button {
+        margin-right: 10px;
+    }
+}
+
+.home-screen-top-row {
+    max-width: 100%;
+
+    .top-row-inner {
+        max-width: 80%;
+        border-bottom: solid 1px #aaaaaa;
+        display: flex;
+        justify-content: right;
+        padding: 0 2rem 2rem;
+    }
+}
+
+.add-playlist-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 75vh;
+}
+
+.playlist-inner-container {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    input,
+    div,
+    button,
+    span {
+        margin: 10px;
+    }
+
+    label {
+        text-align: center;
+        font-weight: bold;
+        padding-top: 1em;
+        padding-bottom: 1em;
+        width: 100%;
+    }
+
+    span {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    input {
+        border: solid 1px black;
+    }
+
+    .path-chooser {
+        width: 100%;
+    }
+}
+
+.path-chooser-inner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+button {
+    margin-right: 15px;
+}
+
+.loading-div {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.loading-icon {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    color: white;
+    animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+    from {
+        transform: scale(5) rotate(0deg);
+    }
+    to {
+        transform: scale(5) rotate(359deg);
+    }
 }

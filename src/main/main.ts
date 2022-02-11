@@ -1,18 +1,25 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
-import Store, { PARAMS } from './Store'
-import { loadRootInfoIntoStore, RootInfoError } from './playlistLoader'
-import _YTDLClass from './ytdl'
-import chalk from 'chalk'
+import Store from './Store'
+import { Playlist } from './types'
 
-const getYtdlAsync = _YTDLClass.getAsync
+import {
+    addNewPlaylist, downloadPlaylistsContentsJSON,
+    getTest,
+    loadPlaylistInfo,
+    loadRootInfoIntoStore, removePlaylist
+} from './playlistLoader'
+import createLogger from './logger'
+import OpenDialogOptions = Electron.OpenDialogOptions
+
+const log = createLogger('main.ts')
+const rendererLog = createLogger('renderer')
 
 let mainWindow: BrowserWindow | null = null
-
 if (process.env.NODE_ENV === 'production') {
     const sourceMapSupport = require('source-map-support')
     sourceMapSupport.install()
@@ -52,6 +59,7 @@ const createWindow = async () => {
     mainWindow = new BrowserWindow({
         show: false,
         width: 1024,
+        minWidth: 900,
         height: 728,
         icon: getAssetPath('icon.png'),
         webPreferences: {
@@ -63,6 +71,17 @@ const createWindow = async () => {
     })
 
     mainWindow.loadURL(resolveHtmlPath('index.html'))
+
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (url.startsWith(resolveHtmlPath(''))) {
+            return {
+                action: 'allow',
+                preload: path.join(__dirname, 'preload.js'),
+            }
+        }
+        shell.openExternal(url)
+        return { action: 'deny' }
+    })
 
     mainWindow.on('ready-to-show', () => {
         if (!mainWindow) throw new Error('"mainWindow" is not defined')
@@ -76,12 +95,6 @@ const createWindow = async () => {
 
     const menuBuilder = new MenuBuilder(mainWindow)
     menuBuilder.buildMenu()
-
-    // Open urls in the user's browser
-    mainWindow.webContents.on('new-window', (event, url) => {
-        event.preventDefault()
-        shell.openExternal(url)
-    })
 }
 
 export const showError = (text: string) => {
@@ -91,43 +104,63 @@ export const showError = (text: string) => {
 /**
  * Register IPC handlers and listeners
  */
-
-ipcMain.on('log', async (event, args) => {
-    console.log(args)
-})
-
-ipcMain.handle('choose-dir', async () => {
+ipcMain.handle('choose-dir', async (event, args: string[]) => {
     if (mainWindow === null) return Promise.reject('Main window is null')
 
-    const result = await dialog.showOpenDialog(mainWindow, {
+    const options: OpenDialogOptions = {
         properties: ['openDirectory'],
-    })
-
-    const paths = result.filePaths
-    if (paths.length > 0 && paths[0] !== null && paths[0] != '') {
-        Store.set(PARAMS.musicDir, paths[0])
-        return paths[0]
     }
 
-    return Promise.reject('Unable to get path from selected directory')
+    if (args.includes('default-path')) {
+        const index = args.indexOf('default-path')
+        options.defaultPath = args[index + 1]
+    }
+
+    const result = await dialog.showOpenDialog(mainWindow, options)
+
+    const paths = result.filePaths
+    if (!(paths.length > 0 && paths[0] !== null && paths[0] != ''))
+        return Promise.reject('Unable to get path from selected directory')
+
+    if (args.includes('save-root')) Store.set('rootDir', paths[0])
+    return paths[0]
 })
 
-ipcMain.handle('get-prefs', async (event, arg: string) => {
+ipcMain.handle('get-pref', async (event, arg: string) => {
     if (!arg) return Store.store
     return Store.get(arg)
 })
 
 ipcMain.handle('loadPL', async () => {
-    console.log(chalk.red('loadPL handler'))
     try {
-        await loadRootInfoIntoStore(`${Store.get(PARAMS.musicDir)}`)
+        await loadRootInfoIntoStore(await Store.get('rootDir'))
         return Promise.resolve()
     } catch (e: unknown) {
         return Promise.reject(JSON.stringify(e))
     }
 })
+
 ipcMain.on('error', (event, args: string[]) => {
-    dialog.showErrorBox('YTDL', (args.length > 0 ? args[0] : 'An error occured'))
+    dialog.showErrorBox('YTDL', args.length > 0 ? args[0] : 'An error occured')
+})
+
+ipcMain.handle('get-playlist-info', async (event, ...args: string[]) => {
+    if (!args || !args[0]) return Promise.reject(new Error('No path passed'))
+    return await loadPlaylistInfo(args[0])
+})
+
+ipcMain.handle('add-playlist', async (event, playlist: Playlist) => {
+    if (!playlist) return Promise.reject()
+    return await addNewPlaylist(playlist)
+})
+
+ipcMain.handle('remove-playlist', async (event, playlist: Playlist) => {
+    log.debug(JSON.stringify(playlist, null, 2))
+    return await removePlaylist(playlist)
+})
+
+ipcMain.handle('download-playlist-info', async (event, playlist: Playlist) => {
+    return await downloadPlaylistsContentsJSON(playlist.dir, playlist.remoteUrl)
 })
 
 /**

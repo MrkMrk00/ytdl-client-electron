@@ -1,23 +1,19 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import path from 'path'
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell, OpenDialogOptions } from 'electron'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import Store from './Store'
 import { Playlist } from './types'
-
+import createLogger from './logger'
 import {
     addNewPlaylist, downloadPlaylistsContentsJSON,
-    getTest,
-    loadPlaylistInfo,
-    loadRootInfoIntoStore, removePlaylist
+    loadPlaylistInfo, loadRootInfoIntoStore,
+    removePlaylist
 } from './playlistLoader'
-import createLogger from './logger'
-import OpenDialogOptions = Electron.OpenDialogOptions
 
 const log = createLogger('main.ts')
-const rendererLog = createLogger('renderer')
 
 let mainWindow: BrowserWindow | null = null
 if (process.env.NODE_ENV === 'production') {

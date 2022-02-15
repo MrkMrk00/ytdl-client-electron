@@ -22,6 +22,7 @@ declare global {
         name: string
         dir: string
         remoteUrl: string
+        folder: string
     }
     type Song = {
         title: string

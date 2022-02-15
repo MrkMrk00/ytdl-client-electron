@@ -1,19 +1,31 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement } from 'react'
 import './components.scss'
+import { connect } from 'react-redux'
+import { RootState } from '../redux/store'
+import { useAppDispatch } from '../redux/hooks'
+import { selectPlaylist } from '../redux/playlistsSlice'
 
-const PlaylistsContainer = (props: {
+type ContainerProps = {
     playlists: Playlist[]
-    onClick: (selectedPlaylist: Playlist) => void
-}) => {
+}
+
+const PlaylistsContainer = (props: ContainerProps) => {
+    const dispatch = useAppDispatch()
+
+    const handleSelectPlaylist = async (playlist: Playlist) => {
+        const selected = await window.electron.invoke('get-playlist-info', playlist.dir)
+        dispatch({ type: selectPlaylist.type, payload: selected })
+    }
+
     const constructPlaylists = () => {
         const container: ReactElement[] = []
-
         for (let i = 0; i < props.playlists.length; i++) {
+
             container.push(
                 <div
                     key={i}
+                    onClick={() => handleSelectPlaylist(props.playlists[i])}
                     className={'button-like-div'}
-                    onClick={() => props.onClick(props.playlists[i])}
                 >
                     {props.playlists[i].name}
                 </div>
@@ -25,4 +37,10 @@ const PlaylistsContainer = (props: {
     return <div className={'playlist-container'}>{constructPlaylists()}</div>
 }
 
-export default PlaylistsContainer
+
+export default connect(
+    (state: RootState) => {
+        return {
+            playlists: state.playlists.playlists
+        }}
+)(PlaylistsContainer)

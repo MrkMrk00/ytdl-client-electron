@@ -29,7 +29,5 @@ export const playlistsSlice = createSlice({
 
 export const { selectPlaylist, deselectPlaylist, loadPlaylists }
     = playlistsSlice.actions
-
 export const selectPlaylists = (state: RootState) => state.playlists
-
 export default playlistsSlice.reducer

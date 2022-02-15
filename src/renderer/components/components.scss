@@ -40,3 +40,15 @@ $separator-color: #aaaaaa;
 .top-row-block {
     margin-left: 1rem;
 }
+
+.playlist-view-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 0;
+
+    button {
+        margin-bottom: 1rem;
+    }
+}

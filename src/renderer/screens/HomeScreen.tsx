@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import '../App.scss'
 import PlaylistsContainer from '../components/PlaylistsContainer'
 import Button from '../components/Button'
 import { useNavigate } from 'react-router-dom'
 import PlaylistView from '../components/PlaylistView'
-import { useAppDispatch, useAppSelector } from '../redux/hooks'
+import { useAppDispatch } from '../redux/hooks'
 import { loadPlaylists, selectPlaylist } from '../redux/playlistsSlice'
 import { connect } from 'react-redux'
 import { RootState } from '../redux/store'
+import { setDir, setLoading, setNotLoading } from '../redux/reducers'
 
 type HomeScreenProps = {
     playlists: Playlist[]
     selectedPlaylist: PlaylistFull | null
+    loading: boolean,
+    dir: string
 }
 
 const HomeScreen = (props: HomeScreenProps) => {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const [dir, setDir] = useState('')
-    const [loading, setLoading] = useState(false)
 
     const handleDownloadInfo = async () => {
-        setLoading(() => true)
+        dispatch({ type: setLoading.type })
         for (const pl of props.playlists) {
             try {
                 await window.electron.invoke('download-playlist-info', pl)
@@ -29,14 +30,14 @@ const HomeScreen = (props: HomeScreenProps) => {
                 window.electron.send('error', e.message)
             }
         }
-        setLoading(() => false)
+        dispatch({ type: setNotLoading.type })
     }
 
     const handleLoadPlaylists = async () => {
         try {
             await window.electron.invoke('loadPL')
             const playlists = await window.electron.getPref('playlists')
-            dispatch({ type: loadPlaylists.type, payload: playlists})
+            dispatch({ type: loadPlaylists.type, payload: playlists })
         } catch (e: any) {
             window.electron.send('error', e.message)
             dispatch({ type: loadPlaylists.type, payload: []})
@@ -57,18 +58,9 @@ const HomeScreen = (props: HomeScreenProps) => {
     }
 
     const handleChangeDirectory = async () => {
-        try {
-            const newDir = await window.electron.chooseDir('save-root')
-            setDir(prev => {
-                if (prev !== newDir) {
-                    handleLoadPlaylists()
-                    dispatch({type: selectPlaylist.type, payload: null })
-                }
-                return newDir
-            })
-        } catch (e: any) {
-            window.electron.send('error', e.message)
-        }
+        const newDir = await window.electron.chooseDir('save-root')
+        if (newDir === props.dir) return
+        dispatch({ type: setDir.type, payload: newDir })
     }
 
     const handleDelete = async (playlist: Playlist) => {
@@ -81,14 +73,14 @@ const HomeScreen = (props: HomeScreenProps) => {
             await handleLoadPlaylists()
             if (props.playlists[0]) await handleSelectPlaylist(props.playlists[0])
             const newDir = await window.electron.getPref('rootDir')
-            setDir(() => newDir)
+            dispatch({ type: setDir.type, payload: newDir })
         })()
     }, [])
 
     return (
         <div className={'container-fluid'}>
             {
-                loading ?
+                props.loading ?
                     <div className={'loading-div'}>
                         <div className={'fa-solid fa-rotate loading-icon'} />
                     </div>
@@ -109,18 +101,14 @@ const HomeScreen = (props: HomeScreenProps) => {
                         <Button
                             text={''}
                             className={'fa-solid fa-refresh'}
-                            onClick={handleLoadPlaylists}
+                            onClick={handleDownloadInfo}
                         />
                         <Button
                             text={''}
                             className={'fa-solid fa-download'}
-                            onClick={handleDownloadInfo}
                         />
                     </div>
-                    <PlaylistsContainer
-                        playlists={props.playlists}
-                        onClick={handleSelectPlaylist}
-                    />
+                    <PlaylistsContainer />
                 </div>
                 <div className={'col-9'}>
                     <div className={'row home-screen-top-row'}>
@@ -130,7 +118,7 @@ const HomeScreen = (props: HomeScreenProps) => {
                                 className={'choose-dir-button top-row-block'}
                                 onClick={handleChangeDirectory}
                             />
-                            <div className={'dir top-row-block'}> {dir} </div>
+                            <div className={'dir top-row-block'}> {props.dir} </div>
                         </div>
                     </div>
                     <PlaylistView />
@@ -143,7 +131,9 @@ const HomeScreen = (props: HomeScreenProps) => {
 const mapStateToProps = (state: RootState) => {
     return {
         playlists: state.playlists.playlists,
-        selectPlaylist: state.playlists.selectedPlaylist
+        selectPlaylist: state.playlists.selectedPlaylist,
+        loading: state.loading,
+        dir: state.directory
     }
 }
 

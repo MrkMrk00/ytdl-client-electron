@@ -1,5 +1,7 @@
 import React, { ReactElement } from 'react'
 import './components.scss'
+import { connect } from 'react-redux'
+import { RootState } from '../redux/store'
 
 const PlaylistSongView = (props: { playlist: PlaylistFull | null }) => {
     const getSongs = () => {
@@ -23,4 +25,8 @@ const PlaylistSongView = (props: { playlist: PlaylistFull | null }) => {
     )
 }
 
-export default PlaylistSongView
+export default connect((state: RootState) => {
+    return {
+        playlist: state.playlists.selectedPlaylist
+    }
+})(PlaylistSongView)

@@ -9,6 +9,7 @@ export const IS_WINDOWS = process.platform === 'win32'
 const YTDL_DOWNLOAD_LINK = `https://yt-dl.org/downloads/latest/youtube-dl${
     IS_WINDOWS ? '.exe' : ''
 }`
+const FFMPEG_DOWNLOAD_LINK = ''
 
 const isPythonInstalled = (callback?: (val: string) => void) => {
     const checkPythonWithExec = (resolve: (val: boolean) => void) => {

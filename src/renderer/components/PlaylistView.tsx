@@ -21,6 +21,16 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
         dispatch({ type: setNotLoading.type })
     }
 
+    const handleDownload = async () => {
+        const filtered = playlists.filter(pl => pl.remoteUrl === props.playlist?.webpage_url)
+        if (filtered.length !== 1) return
+        console.log(filtered[0])
+
+        await window.electron.invoke('download-playlist', [filtered[0].dir, 'mp3'])
+            .catch(console.log)
+        console.log('stahnuto')
+    }
+
     return (
         <div className={'row'}>
             <div className={'col-8'}>
@@ -41,8 +51,8 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
                         />
                         <Button
                             text={''}
-                            className={'fa-solid fa-trash'}
-                            onClick={() => {}}
+                            className={'fa-solid fa-download'}
+                            onClick={handleDownload}
                         />
                     </div>
                     : null

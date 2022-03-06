@@ -1,15 +1,16 @@
 import { promisify } from 'util'
 import path from 'path'
-import { Playlist, RootInfo } from './types'
+import { Playlist, RootInfo } from '../types'
 import {
     access as acs,
     appendFile as aF,
     readFile as rF,
     writeFile as fsWf
 } from 'fs'
-import Store from './Store'
-import _YTDLClass from './ytdl'
-import createLogger from './logger'
+import Store from '../Store'
+import _YTDLClass from '../ytdl'
+import createLogger from '../logger'
+import RootInfoWriter from './RootInfoWriter'
 
 const getYTDL = _YTDLClass.get
 const log = createLogger('playlistLoader.ts')
@@ -21,35 +22,7 @@ const [writeFile, appendFile, readFile, access] = [
     promisify(acs),
 ]
 
-class RootInfoWriter {
-    private constructor(
-        public readonly json: RootInfo,
-        private readonly path: string
-    ) {}
-
-    static async get(rootDir: string, createNew: boolean): Promise<RootInfoWriter> {
-        let rawFile = null
-        const filePath = path.join(rootDir, 'playlists.json')
-        try {
-            if (!createNew) rawFile = await readFile(filePath)
-        } catch (e: any) {
-            return Promise.reject(e)
-        }
-
-        const json = createNew ? {} : JSON.parse(rawFile!.toString())
-        return new RootInfoWriter(json, filePath)
-    }
-
-    async write(): Promise<void> {
-        try {
-            await writeFile(this.path, JSON.stringify(this.json, null, 2))
-        } catch (e: any) {
-            return Promise.reject(e.message)
-        }
-    }
-}
-
-export const loadRootInfoIntoStore = async (rootPath: string) => {
+export const loadPlaylistsIntoStore = async (rootPath: string) => {
     const filePath = path.join(rootPath, 'playlists.json')
 
     try {
@@ -84,7 +57,7 @@ export const downloadPlaylistsContentsJSON = async (pathToPlaylist: string, url:
         })
 }
 
-export const loadPlaylistInfo = async (
+export const getPlaylistDetails = async (
     pathRelativeToRoot: string
 ): Promise<object> => {
     const filePath = path.join(Store.get('rootDir'), pathRelativeToRoot, 'playlist.json')

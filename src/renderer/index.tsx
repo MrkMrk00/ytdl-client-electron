@@ -13,7 +13,6 @@ declare global {
                 channel: string,
                 listener: (event: any, ...args: any[]) => void
             ) => void
-            downloadPlaylistJSON: (playlist: Playlist) => Promise<void>
             chooseDir: (...args: string[]) => Promise<string>
             getPref: (name: string) => Promise<any>
         }

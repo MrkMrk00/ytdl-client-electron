@@ -9,9 +9,10 @@ import { Playlist } from './types'
 import createLogger from './logger'
 import {
     addNewPlaylist, downloadPlaylistsContentsJSON,
-    loadPlaylistInfo, loadRootInfoIntoStore,
+    getPlaylistDetails, loadPlaylistsIntoStore,
     removePlaylist
-} from './playlistLoader'
+} from './playlists/playlistLoader'
+import { downloadPlaylist } from './playlists/playlistDownloader'
 
 const log = createLogger('main.ts')
 
@@ -131,9 +132,9 @@ ipcMain.handle('get-pref', async (event, arg: string) => {
 /**
  * Loads playlists from root/playlists.json into Electron Store
  */
-ipcMain.handle('loadPL', async () => {
+ipcMain.handle('load-playlists', async () => {
     try {
-        await loadRootInfoIntoStore(await Store.get('rootDir'))
+        await loadPlaylistsIntoStore(await Store.get('rootDir'))
         return Promise.resolve()
     } catch (e: unknown) {
         return Promise.reject(e)
@@ -159,7 +160,18 @@ ipcMain.handle('download-playlist-info', async (event, playlist: Playlist) => {
  */
 ipcMain.handle('get-playlist-info', async (event, ...args: string[]) => {
     if (!args || !args[0]) return Promise.reject(new Error('No path passed'))
-    return await loadPlaylistInfo(args[0])
+    try {
+        return await getPlaylistDetails(args[0])
+    } catch (e) {
+        const opt = await dialog.showMessageBox({
+            message: 'Ještě nebyly staženy informace o playlistu',
+            type: 'question',
+            buttons: [
+                'Stáhnout', 'Nestahovat'
+            ]
+        })
+    }
+    return Promise.resolve()
 })
 
 /**
@@ -168,7 +180,7 @@ ipcMain.handle('get-playlist-info', async (event, ...args: string[]) => {
 ipcMain.handle('add-playlist', async (event, playlist: Playlist) => {
     if (!playlist) return Promise.reject()
     await addNewPlaylist(playlist)
-    return await loadRootInfoIntoStore(await Store.get('rootDir'))
+    return await loadPlaylistsIntoStore(await Store.get('rootDir'))
 })
 
 /**
@@ -177,7 +189,11 @@ ipcMain.handle('add-playlist', async (event, playlist: Playlist) => {
 ipcMain.handle('remove-playlist', async (event, playlist: Playlist) => {
     if (!playlist) return Promise.reject()
     await removePlaylist(playlist)
-    return await loadRootInfoIntoStore(await Store.get('rootDir'))
+    return await loadPlaylistsIntoStore(await Store.get('rootDir'))
+})
+
+ipcMain.handle('download-playlist', (event, args: string[]) => {
+    return downloadPlaylist(args[0], (args[1] ? args[1]: undefined))
 })
 
 /**

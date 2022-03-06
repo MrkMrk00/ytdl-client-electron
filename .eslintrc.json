@@ -23,6 +23,7 @@
         "quotes": ["error", "single"],
         "semi": ["error", "never"],
         "no-empty": 0,
+        "no-constant-condition": 0,
         "@typescript-eslint/no-var-requires": 0,
         "@typescript-eslint/no-this-alias": 0,
         "@typescript-eslint/no-explicit-any": 0,

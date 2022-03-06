@@ -49,7 +49,10 @@ const AddNewPlaylistScreen = () => {
             name: name,
             dir: path,
             remoteUrl: url
+        }).catch(e => {
+            window.electron.invoke('error', e.message)
         })
+        navigate('/')
     }
 
     useEffect(() => {

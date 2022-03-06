@@ -9,6 +9,7 @@ import { loadPlaylists, selectPlaylist } from '../redux/playlistsSlice'
 import { connect } from 'react-redux'
 import { RootState } from '../redux/store'
 import { setDir, setLoading, setNotLoading } from '../redux/reducers'
+import AnimatedDownloadIcon from '../components/AnimatedDownloadIcon'
 
 type HomeScreenProps = {
     playlists: Playlist[]
@@ -35,7 +36,7 @@ const HomeScreen = (props: HomeScreenProps) => {
 
     const handleLoadPlaylists = async () => {
         try {
-            await window.electron.invoke('loadPL')
+            await window.electron.invoke('load-playlists')
             const playlists = await window.electron.getPref('playlists')
             dispatch({ type: loadPlaylists.type, payload: playlists })
         } catch (e: any) {
@@ -84,6 +85,11 @@ const HomeScreen = (props: HomeScreenProps) => {
                     <div className={'loading-div'}>
                         <div className={'fa-solid fa-rotate loading-icon'} />
                     </div>
+                    : null
+            }
+            {
+                null ?
+                    <AnimatedDownloadIcon />
                     : null
             }
 

@@ -13,7 +13,9 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
     const playlists = useAppSelector(selectPlaylists).playlists
 
     const handleReloadInfo = async () => {
-        const filtered = playlists.filter(pl => pl.remoteUrl === props.playlist?.webpage_url)
+        const filtered = playlists.filter(
+            pl => pl.remoteUrl === props.playlist?.webpage_url
+        )
         if (filtered.length !== 1) return
 
         dispatch({ type: setLoading.type })
@@ -22,11 +24,14 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
     }
 
     const handleDownload = async () => {
-        const filtered = playlists.filter(pl => pl.remoteUrl === props.playlist?.webpage_url)
+        const filtered = playlists.filter(
+            pl => pl.remoteUrl === props.playlist?.webpage_url
+        )
         if (filtered.length !== 1) return
         console.log(filtered[0])
 
-        await window.electron.invoke('download-playlist', [filtered[0].dir, 'mp3'])
+        await window.electron
+            .invoke('download-playlist', [filtered[0].dir, 'mp3'])
             .catch(console.log)
         console.log('stahnuto')
     }
@@ -37,7 +42,7 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
                 <PlaylistSongView />
             </div>
             <div className={'col-4'}>
-                { props.playlist ?
+                {props.playlist ? (
                     <div className={'playlist-view-buttons'}>
                         <Button
                             text={''}
@@ -55,8 +60,7 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
                             onClick={handleDownload}
                         />
                     </div>
-                    : null
-                }
+                ) : null}
             </div>
         </div>
     )
@@ -64,7 +68,7 @@ const PlaylistView = (props: { playlist: PlaylistFull | null }) => {
 
 const mapStateToProps = (state: RootState) => {
     return {
-        playlist: state.playlists.selectedPlaylist
+        playlist: state.playlists.selectedPlaylist,
     }
 }
 

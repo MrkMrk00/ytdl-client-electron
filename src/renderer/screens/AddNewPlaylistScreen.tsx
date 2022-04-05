@@ -39,19 +39,20 @@ const AddNewPlaylistScreen = () => {
             const reResult = re.exec(newPath)
             if (!reResult || !reResult[1] || reResult[1] === '') return
             setPath(() => reResult[1])
-
         } catch (e: any) {}
     }
 
     const handleSubmit = async () => {
         if (name === '' || url === '' || path === '') return
-        await window.electron.invoke('add-playlist', {
-            name: name,
-            dir: path,
-            remoteUrl: url
-        }).catch(e => {
-            window.electron.invoke('error', e.message)
-        })
+        await window.electron
+            .invoke('add-playlist', {
+                name: name,
+                dir: path,
+                remoteUrl: url,
+            })
+            .catch(e => {
+                window.electron.invoke('error', e.message)
+            })
         navigate('/')
     }
 

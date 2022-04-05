@@ -8,7 +8,10 @@ export default class RootInfoWriter {
         private readonly path: string
     ) {}
 
-    static async get(rootDir: string, createNew: boolean): Promise<RootInfoWriter> {
+    static async get(
+        rootDir: string,
+        createNew: boolean
+    ): Promise<RootInfoWriter> {
         let rawFile = null
         const filePath = path.join(rootDir, 'playlists.json')
         try {

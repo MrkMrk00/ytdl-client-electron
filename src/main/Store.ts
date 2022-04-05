@@ -16,7 +16,7 @@ const store = new Store<StoreType>({
     defaults: {
         rootDir: '',
         playlists: [],
-        downloadStatus: null
+        downloadStatus: null,
     },
 })
 

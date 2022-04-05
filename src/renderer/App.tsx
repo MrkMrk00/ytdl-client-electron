@@ -4,7 +4,6 @@ import HomeScreen from './screens/HomeScreen'
 import AddNewPlaylistScreen from './screens/AddNewPlaylistScreen'
 
 const App = () => {
-
     return (
         <Router>
             <Routes>

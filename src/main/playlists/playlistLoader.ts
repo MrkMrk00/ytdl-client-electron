@@ -5,7 +5,7 @@ import {
     access as acs,
     appendFile as aF,
     readFile as rF,
-    writeFile as fsWf
+    writeFile as fsWf,
 } from 'fs'
 import Store from '../Store'
 import _YTDLClass from '../ytdl'
@@ -43,7 +43,10 @@ export const loadPlaylistsIntoStore = async (rootPath: string) => {
     return Promise.resolve()
 }
 
-export const downloadPlaylistsContentsJSON = async (pathToPlaylist: string, url: string) => {
+export const downloadPlaylistsContentsJSON = async (
+    pathToPlaylist: string,
+    url: string
+) => {
     const ytdl = await getYTDL()
     const exactPath = path.join(Store.get('rootDir'), pathToPlaylist)
 
@@ -51,16 +54,19 @@ export const downloadPlaylistsContentsJSON = async (pathToPlaylist: string, url:
     await access(exactPath)
     await writeFile(filePath, '')
 
-    await ytdl.exec(['--dump-single-json', '--flat-playlist', url],
-        data => {
-            appendFile(filePath, data.toString())
-        })
+    await ytdl.exec(['--dump-single-json', '--flat-playlist', url], data => {
+        appendFile(filePath, data.toString())
+    })
 }
 
 export const getPlaylistDetails = async (
     pathRelativeToRoot: string
 ): Promise<object> => {
-    const filePath = path.join(Store.get('rootDir'), pathRelativeToRoot, 'playlist.json')
+    const filePath = path.join(
+        Store.get('rootDir'),
+        pathRelativeToRoot,
+        'playlist.json'
+    )
     try {
         await access(filePath)
     } catch (e: any) {
@@ -99,11 +105,12 @@ export const removePlaylist = async (playlist: Playlist) => {
     try {
         const writer = await RootInfoWriter.get(Store.get('rootDir'), false)
         log.debug(JSON.stringify(writer.json, null, 2))
-        const filtered = writer.json.playlists.filter(it => !(it.remoteUrl === playlist.remoteUrl))
+        const filtered = writer.json.playlists.filter(
+            it => !(it.remoteUrl === playlist.remoteUrl)
+        )
         writer.json.playlists = filtered
         return await writer.write()
-    }
-    catch (e: any) {
+    } catch (e: any) {
         return Promise.reject(e.message)
     }
 }

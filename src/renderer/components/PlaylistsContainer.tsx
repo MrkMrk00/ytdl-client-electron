@@ -13,14 +13,16 @@ const PlaylistsContainer = (props: ContainerProps) => {
     const dispatch = useAppDispatch()
 
     const handleSelectPlaylist = async (playlist: Playlist) => {
-        const selected = await window.electron.invoke('get-playlist-info', playlist.dir)
+        const selected = await window.electron.invoke(
+            'get-playlist-info',
+            playlist.dir
+        )
         dispatch({ type: selectPlaylist.type, payload: selected })
     }
 
     const constructPlaylists = () => {
         const container: ReactElement[] = []
         for (let i = 0; i < props.playlists.length; i++) {
-
             container.push(
                 <div
                     key={i}
@@ -37,10 +39,8 @@ const PlaylistsContainer = (props: ContainerProps) => {
     return <div className={'playlist-container'}>{constructPlaylists()}</div>
 }
 
-
-export default connect(
-    (state: RootState) => {
-        return {
-            playlists: state.playlists.playlists
-        }}
-)(PlaylistsContainer)
+export default connect((state: RootState) => {
+    return {
+        playlists: state.playlists.playlists,
+    }
+})(PlaylistsContainer)

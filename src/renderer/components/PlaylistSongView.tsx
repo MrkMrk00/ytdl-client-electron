@@ -9,7 +9,7 @@ const PlaylistSongView = (props: { playlist: PlaylistFull | null }) => {
         const container: ReactElement[] = []
         for (let i = 0; i < props.playlist.entries.length; i++)
             container.push(
-                <div key={i} className={'row'} style={{margin: 0}}>
+                <div key={i} className={'row'} style={{ margin: 0 }}>
                     <div>
                         {i + 1}) {props.playlist.entries[i].title}
                     </div>
@@ -27,6 +27,6 @@ const PlaylistSongView = (props: { playlist: PlaylistFull | null }) => {
 
 export default connect((state: RootState) => {
     return {
-        playlist: state.playlists.selectedPlaylist
+        playlist: state.playlists.selectedPlaylist,
     }
 })(PlaylistSongView)

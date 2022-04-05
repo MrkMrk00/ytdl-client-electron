@@ -14,7 +14,7 @@ import AnimatedDownloadIcon from '../components/AnimatedDownloadIcon'
 type HomeScreenProps = {
     playlists: Playlist[]
     selectedPlaylist: PlaylistFull | null
-    loading: boolean,
+    loading: boolean
     dir: string
 }
 
@@ -41,7 +41,7 @@ const HomeScreen = (props: HomeScreenProps) => {
             dispatch({ type: loadPlaylists.type, payload: playlists })
         } catch (e: any) {
             window.electron.send('error', e.message)
-            dispatch({ type: loadPlaylists.type, payload: []})
+            dispatch({ type: loadPlaylists.type, payload: [] })
         }
     }
 
@@ -54,7 +54,7 @@ const HomeScreen = (props: HomeScreenProps) => {
             dispatch({ type: selectPlaylist.type, payload: playlist })
         } catch (e: any) {
             window.electron.send('error', e.message)
-            dispatch({type: selectPlaylist.type, payload: null })
+            dispatch({ type: selectPlaylist.type, payload: null })
         }
     }
 
@@ -72,7 +72,8 @@ const HomeScreen = (props: HomeScreenProps) => {
     useEffect(() => {
         (async () => {
             await handleLoadPlaylists()
-            if (props.playlists[0]) await handleSelectPlaylist(props.playlists[0])
+            if (props.playlists[0])
+                await handleSelectPlaylist(props.playlists[0])
             const newDir = await window.electron.getPref('rootDir')
             dispatch({ type: setDir.type, payload: newDir })
         })()
@@ -80,18 +81,12 @@ const HomeScreen = (props: HomeScreenProps) => {
 
     return (
         <div className={'container-fluid'}>
-            {
-                props.loading ?
-                    <div className={'loading-div'}>
-                        <div className={'fa-solid fa-rotate loading-icon'} />
-                    </div>
-                    : null
-            }
-            {
-                null ?
-                    <AnimatedDownloadIcon />
-                    : null
-            }
+            {props.loading ? (
+                <div className={'loading-div'}>
+                    <div className={'fa-solid fa-rotate loading-icon'} />
+                </div>
+            ) : null}
+            {null ? <AnimatedDownloadIcon /> : null}
 
             <div className={'row'}>
                 <div className={'col-3'}>
@@ -109,10 +104,7 @@ const HomeScreen = (props: HomeScreenProps) => {
                             className={'fa-solid fa-refresh'}
                             onClick={handleDownloadInfo}
                         />
-                        <Button
-                            text={''}
-                            className={'fa-solid fa-download'}
-                        />
+                        <Button text={''} className={'fa-solid fa-download'} />
                     </div>
                     <PlaylistsContainer />
                 </div>
@@ -124,7 +116,10 @@ const HomeScreen = (props: HomeScreenProps) => {
                                 className={'choose-dir-button top-row-block'}
                                 onClick={handleChangeDirectory}
                             />
-                            <div className={'dir top-row-block'}> {props.dir} </div>
+                            <div className={'dir top-row-block'}>
+                                {' '}
+                                {props.dir}{' '}
+                            </div>
                         </div>
                     </div>
                     <PlaylistView />
@@ -139,7 +134,7 @@ const mapStateToProps = (state: RootState) => {
         playlists: state.playlists.playlists,
         selectPlaylist: state.playlists.selectedPlaylist,
         loading: state.loading,
-        dir: state.directory
+        dir: state.directory,
     }
 }
 

@@ -1,5 +1,13 @@
 const { contextBridge, ipcRenderer } = require('electron')
-const VALID_SEND = ['load-playlists', 'error', 'get-playlist-info', 'add-playlist', 'download-playlist-info', 'remove-playlist', 'download-playlist']
+const VALID_SEND = [
+    'load-playlists',
+    'error',
+    'get-playlist-info',
+    'add-playlist',
+    'download-playlist-info',
+    'remove-playlist',
+    'download-playlist',
+]
 
 contextBridge.exposeInMainWorld('electron', {
     send: (channel, ...args) => {

@@ -8,14 +8,14 @@ type PlaylistsState = {
 
 const initialState: PlaylistsState = {
     playlists: [],
-    selectedPlaylist: null
+    selectedPlaylist: null,
 }
 
 export const playlistsSlice = createSlice({
     name: 'playlists',
     initialState,
     reducers: {
-        selectPlaylist: (state, action: PayloadAction<PlaylistFull>)=> {
+        selectPlaylist: (state, action: PayloadAction<PlaylistFull>) => {
             state.selectedPlaylist = action.payload
         },
         deselectPlaylist: state => {
@@ -23,11 +23,11 @@ export const playlistsSlice = createSlice({
         },
         loadPlaylists: (state, action: PayloadAction<Playlist[]>) => {
             state.playlists = action.payload
-        }
-    }
+        },
+    },
 })
 
-export const { selectPlaylist, deselectPlaylist, loadPlaylists }
-    = playlistsSlice.actions
+export const { selectPlaylist, deselectPlaylist, loadPlaylists } =
+    playlistsSlice.actions
 export const selectPlaylists = (state: RootState) => state.playlists
 export default playlistsSlice.reducer

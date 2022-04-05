@@ -10,7 +10,7 @@ const store = configureStore({
         playlists: playlistsReducer,
         directory: dirReducer,
         loading: loadingReducer,
-        fileType: fileTypeReducer
+        fileType: fileTypeReducer,
     },
 })
 

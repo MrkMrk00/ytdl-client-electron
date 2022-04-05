@@ -1,16 +1,25 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import path from 'path'
-import { app, BrowserWindow, dialog, ipcMain, shell, OpenDialogOptions } from 'electron'
+import {
+    app,
+    BrowserWindow,
+    dialog,
+    ipcMain,
+    shell,
+    OpenDialogOptions,
+} from 'electron'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import Store from './Store'
 import { Playlist } from './types'
 import createLogger from './logger'
 import {
-    addNewPlaylist, downloadPlaylistsContentsJSON,
-    getPlaylistDetails, loadPlaylistsIntoStore,
-    removePlaylist
+    addNewPlaylist,
+    downloadPlaylistsContentsJSON,
+    getPlaylistDetails,
+    loadPlaylistsIntoStore,
+    removePlaylist,
 } from './playlists/playlistLoader'
 import { downloadPlaylist } from './playlists/playlistDownloader'
 
@@ -166,9 +175,7 @@ ipcMain.handle('get-playlist-info', async (event, ...args: string[]) => {
         const opt = await dialog.showMessageBox({
             message: 'Ještě nebyly staženy informace o playlistu',
             type: 'question',
-            buttons: [
-                'Stáhnout', 'Nestahovat'
-            ]
+            buttons: ['Stáhnout', 'Nestahovat'],
         })
     }
     return Promise.resolve()
@@ -193,7 +200,7 @@ ipcMain.handle('remove-playlist', async (event, playlist: Playlist) => {
 })
 
 ipcMain.handle('download-playlist', (event, args: string[]) => {
-    return downloadPlaylist(args[0], (args[1] ? args[1]: undefined))
+    return downloadPlaylist(args[0], args[1] ? args[1] : undefined)
 })
 
 /**
